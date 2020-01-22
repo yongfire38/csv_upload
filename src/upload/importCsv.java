@@ -10,13 +10,18 @@ import com.opencsv.CSVReader;
 //csv 파일의 내용을 테이블에 저장(mysql)
 public class importCsv {
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		try (InputStreamReader is = new InputStreamReader(new FileInputStream("data/project_code.csv"), "EUC-KR");
+		try{
+			InputStreamReader is = new InputStreamReader(new FileInputStream("data/project_code.csv"), "EUC-KR");
+		
 				CSVReader reader = new CSVReader(is, ',', '"', 1);
-				Connection connection = dbConnection.getConnection();) {
+				
+				Connection connection = dbConnection.getConnection(); 
 			String insertQuery = "Insert into project_code (project_code, project_gubun, project_name, x_location, y_location) values (?,?,?,?,?)";
 			PreparedStatement pstmt = connection.prepareStatement(insertQuery);
 			String[] rowData = null;
+					
 			int i = 0;
 			while ((rowData = reader.readNext()) != null) {
 				for (String data : rowData) {
@@ -25,7 +30,7 @@ public class importCsv {
 					if (++i % 5 == 0)
 						pstmt.addBatch();// add batch
 
-					if (i % 50 == 0)// insert when the batch size is 10
+					if (i % 10 == 0)// insert when the batch size is 10
 						pstmt.executeBatch();
 				}
 			}
